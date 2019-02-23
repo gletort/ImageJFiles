@@ -1,3 +1,12 @@
+/** 
+ * \brief Plugin to select only Rois of interest by z-slice
+ *
+ * \details For each z-slice, when there are several Rois associated to that slice, select the "best" one (e.g. largest area)
+ *
+ * \author G. Letort, College de France
+ * \date created on 2019/02/22
+ * */
+
 package chooser;
 import ij.*;
 import ij.util.*;
