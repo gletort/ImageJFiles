@@ -33,7 +33,7 @@ public class ChooseRoi implements PlugIn
 		RoiManager rm = RoiManager.getInstance();
 		if ( rm == null || rm.getCount() == 0 )
 		{
-			IJ.error("No Rois allRois in Manager");
+			IJ.error("No Rois in Manager");
 			return;
 		}
 
