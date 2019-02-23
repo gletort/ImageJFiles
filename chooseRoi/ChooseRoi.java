@@ -117,10 +117,10 @@ public class ChooseRoi implements PlugIn
 	
 	public void circularRois()
 	{
+		System.out.println(Macro.getOptions());
 		GenericDialog gd = new GenericDialog("Circularity");
-		Font boldy = new Font("SansSerif", Font.BOLD, 12);
-		gd.addNumericField("Min circularity:", 0.5, 2);
-		gd.addNumericField("Max circularity:", 1, 2);
+		gd.addNumericField("min_circularity:", 0.5, 2);
+		gd.addNumericField("max_circularity:", 1, 2);
 
 		gd.showDialog();
 		if (gd.wasCanceled()) return;
@@ -135,7 +135,7 @@ public class ChooseRoi implements PlugIn
 		RoiManager rm = RoiManager.getInstance();
 		if ( rm == null || rm.getCount() == 0 )
 		{
-			IJ.error("No Rois allRois in Manager");
+			IJ.error("No Rois in Manager");
 			return;
 		}
 
@@ -180,7 +180,6 @@ public class ChooseRoi implements PlugIn
 	/** \brief Select one roi by z-slice (biggest area, smallest area)*/
 	public void run(String arg) 
 	{
-		IJ.run("Select None");
 		imp = IJ.getImage();
 
 		// Measure everything in pixels
