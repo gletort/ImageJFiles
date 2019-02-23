@@ -14,6 +14,7 @@ import ij.process.*;
 import ij.gui.*;
 import ij.plugin.*;
 import ij.plugin.frame.*;
+import ij.plugin.filter.*;
 import ij.measure.*;
 import java.io.*;
 import java.util.*;
@@ -22,6 +23,7 @@ import java.awt.*;
 public class ChooseRoi implements PlugIn 
 {
 	ImagePlus imp;
+	Calibration cal;
 
 	/** \brief Select only one Roi by z-slice
 	 *
@@ -112,12 +114,84 @@ public class ChooseRoi implements PlugIn
 			rm.runCommand("Delete");
 		}
 	}	
+	
+	public void circularRois()
+	{
+		GenericDialog gd = new GenericDialog("Circularity");
+		Font boldy = new Font("SansSerif", Font.BOLD, 12);
+		gd.addNumericField("Min circularity:", 0.5, 2);
+		gd.addNumericField("Max circularity:", 1, 2);
+
+		gd.showDialog();
+		if (gd.wasCanceled()) return;
+		
+		double minc = gd.getNextNumber();
+		double maxc = gd.getNextNumber();
+		keepCircularRois( minc, maxc );
+	}
+
+	public void keepCircularRois( double circmin, double circmax )
+	{
+		RoiManager rm = RoiManager.getInstance();
+		if ( rm == null || rm.getCount() == 0 )
+		{
+			IJ.error("No Rois allRois in Manager");
+			return;
+		}
+
+
+		Roi[] allRois = rm.getRoisAsArray();
+		int curz;
+		Vector tokeep = new Vector();
+		tokeep.clear();
+		for ( int i = 0; i < allRois.length; i++ )
+		{
+			Roi curroi = allRois[i];
+			curroi.setImage(imp);
+			imp.setPosition(curroi.getPosition() );
+			rm.select(i);
+			ImageProcessor ip = imp.getProcessor();
+			ip.setRoi( curroi.getPolygon() );
+			ImageStatistics stats = ImageStatistics.getStatistics(ip, Measurements.AREA, cal);
+			double perimeter = curroi.getLength();
+			double circ = perimeter==0.0?0.0:4.0*Math.PI*(stats.area/(perimeter*perimeter));
+			if ( circ >= circmin && circ <= circmax )
+				tokeep.add( i );
+		}
+
+		int ndel = allRois.length-tokeep.size();
+		if ( ndel > 0 )
+		{
+			int[] dels = new int[ndel];
+			int filled = 0;
+			for ( int j = 0; j < allRois.length; j++ )
+			{
+				if ( !tokeep.contains(j) )
+				{
+					dels[filled] = j;
+					filled = filled + 1;
+				}
+			}
+			rm.setSelectedIndexes(dels);
+			rm.runCommand("Delete");
+		}
+	}	
 
 	/** \brief Select one roi by z-slice (biggest area, smallest area)*/
 	public void run(String arg) 
 	{
 		IJ.run("Select None");
 		imp = IJ.getImage();
+
+		// Measure everything in pixels
+		cal = imp.getCalibration();
+		if (cal == null ) 
+		{
+			cal = new Calibration(imp);
+		}
+		cal.pixelWidth = 1;
+		cal.pixelHeight = 1;
+		cal.pixelDepth = 1;
 
 		switch ( arg.toLowerCase() )
 		{
@@ -126,6 +200,9 @@ public class ChooseRoi implements PlugIn
 				break;
 			case "smallest": 
 				keepRois(1);
+				break;
+			case "circ":
+				circularRois();
 				break;
 			default:
 				keepRois(0);
