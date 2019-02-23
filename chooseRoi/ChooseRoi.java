@@ -117,7 +117,6 @@ public class ChooseRoi implements PlugIn
 	
 	public void circularRois()
 	{
-		System.out.println(Macro.getOptions());
 		GenericDialog gd = new GenericDialog("Circularity");
 		gd.addNumericField("min_circularity:", 0.5, 2);
 		gd.addNumericField("max_circularity:", 1, 2);
