@@ -102,6 +102,7 @@ public class OneImageMoments
 	public void rotate()
 	{
 		ImageProcessor ip = imp.getProcessor();
+		ip.setBackgroundValue(0);
 		ip.setInterpolationMethod(ImageProcessor.BILINEAR);
 		ip.rotate(-angle);
 		imp.setProcessor(ip);
