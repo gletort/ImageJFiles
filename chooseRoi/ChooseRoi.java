@@ -42,7 +42,8 @@ public class ChooseRoi implements PlugIn
 		int curz;
 		int	wini = 0;
 		int doingz = -1;
-		double refarea;
+		double refarea = 0;
+		double refmean = 0;
 		switch ( which )
 		{
 			case 0:
@@ -51,11 +52,16 @@ public class ChooseRoi implements PlugIn
 			case 1:
 				refarea = imp.getWidth()*imp.getHeight() + 2;
 				break;
+			case 2:
+				refmean = 0;
+				break;
 			default:
 				refarea = 0;
+				refmean = 0;
 				break;
 		}
 		double marea = refarea;
+		double mmean = refmean;
 		Vector tokeep = new Vector();
 		tokeep.clear();
 		for ( int i = 0; i < allRois.length; i++ )
@@ -71,11 +77,12 @@ public class ChooseRoi implements PlugIn
 			}
 			rm.select(i);
 			double tmparea = imp.getStatistics().area; 
+			double tmpmean = imp.getStatistics().mean; 
 			switch ( which )
 			{
 				case 0:
 					// biggest area wins
-					if ( tmparea > marea )
+					if ( tmparea >= marea )
 					{
 						wini = i;
 						marea = tmparea;
@@ -83,10 +90,18 @@ public class ChooseRoi implements PlugIn
 					break;
 				case 1:
 					// smallest area wins
-					if ( tmparea < marea )
+					if ( tmparea <= marea )
 					{
 						wini = i;
 						marea = tmparea;
+					}
+					break;
+				case 2:
+					// best mean wins
+					if ( tmpmean >= mmean )
+					{
+						wini = i;
+						mmean = tmpmean;
 					}
 					break;
 				default:
@@ -198,6 +213,9 @@ public class ChooseRoi implements PlugIn
 				break;
 			case "smallest": 
 				keepRois(1);
+				break;
+			case "bestmean": 
+				keepRois(2);
 				break;
 			case "circ":
 				circularRois();
