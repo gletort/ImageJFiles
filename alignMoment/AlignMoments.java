@@ -31,6 +31,7 @@ public class AlignMoments implements PlugIn
 	boolean print;
 	boolean invisible;
 	double pow; 
+	double prevangle;
 
 	public void getOptions()
 	{
@@ -55,34 +56,39 @@ public class AlignMoments implements PlugIn
 
 	public void go()
 	{
+		prevangle = -42424242;
 		if ( print )
 			IJ.log("Slice \t CenterX \t CenterY \t Angle \n" );
 		if (!stack)
-			doOneImage(imp.getSlice());
+			doOneImage(imp.getSlice(), 0);
 		else
 		{
 			int nslices = imp.getNSlices();
+			int add = 0;
 			for (int z = 1; z <= nslices; z++)
 			{
 				IJ.showStatus( "Align slice "+z+"/"+nslices);
 				IJ.showProgress( z, nslices );
 				imp.setSlice(z);
-				doOneImage(z);
+				add = doOneImage(z, add);
 			}
 		}
 	}
 	
-	public void doOneImage(int z)
+	public int doOneImage(int z, int add)
 	{
 		OneImageMoments oneMoment = new OneImageMoments(imp);
-		oneMoment.getMoments(pow);
+		add = oneMoment.getMoments(pow, add, prevangle);
+		prevangle = oneMoment.getAngle();
+		
 		if ( print )
 			oneMoment.printValues(z);
 		if ( translate )
 			oneMoment.translate();
 		if ( rotate )
 			oneMoment.rotate();
-
+		
+		return add;
 	}
 
 	

@@ -26,7 +26,9 @@ public class OneImageMoments
 		imp = ip;
 	}
 
-	public void getMoments(double powing)
+	public double getAngle() { return angle; }
+
+	public int getMoments(double powing, int add, double prevangle)
 	{
 		int wid = imp.getWidth();
 		int hei = imp.getHeight();
@@ -75,8 +77,18 @@ public class OneImageMoments
 
 		xc = xbar;
 		yc = ybar;
-		angle = theta;
+		angle = theta + 180*add;
+
+		//System.out.println( angle+" "+add+" "+prevangle);
+		if ( prevangle !=-42424242 && Math.abs(angle-prevangle) > 120 )
+		{
+			add++;
+			angle += 180;
+		}
+		return add;
 		//if ( mup20 < mup02 ) angle += Math.PI/2;
+		//if ( mup20 > mup02 && mup11 < 0 ) angle += 180;
+		//System.out.println( mup20+" "+mup02+" "+mup11+" "+angle );
 		//angle = angle * 180 / Math.PI;
 
 		//angle = angle - 90;
