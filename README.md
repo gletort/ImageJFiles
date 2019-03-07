@@ -3,11 +3,17 @@ plugins/macros for ImageJ/Fiji
 
 
  * [Visualisation 3D](#tilt-3D)
+ * [Align stack](#align-stack)
  * [Select specific Rois](#choose-roi)
  * [Correct bleaching](#unbleach)
 
 ## Tilt 3D
 Visualisation of 3D stacks.
+
+## Align stack
+Center and rotate each slices of a stack based on image moments so that they will all get the same average position and orientation (global alignement). 
+Works best on binary images. 
+On non-binay images, adding weight to positive pixels (noise reduction option) helps to be less sensitive to background pixels, otherwise, highly biaised.
 
 
 ## Choose Roi
