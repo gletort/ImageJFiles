@@ -1,6 +1,7 @@
 # Choose Roi
 
  * [Best Roi by z-slice](#select-best-roi)
+ * [Keep Roi according to criteria](#keep-roi)
  * [Installation](#installation)
 
 ## Select best Roi
@@ -17,6 +18,8 @@ Delete the non-selected Rois.
 ### Best mean intensity
 Select for each z-slice the Roi that have the maximal mean intensity among all Rois that are present in the slice.
 Delete the non-selected Rois.
+
+## Keep Roi
 
 ### Circularity
 Keep all Rois that have circularity between two given values, asked in a prompted dialog.
