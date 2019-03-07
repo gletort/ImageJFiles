@@ -4,6 +4,7 @@ plugins/macros for ImageJ/Fiji
 
  * [Visualisation 3D](#tilt-3D)
  * [Select specific Rois](#choose-roi)
+ * [Correct bleaching](#unbleach)
 
 ## Tilt 3D
 Visualisation of 3D stacks.
@@ -18,3 +19,9 @@ Delete the non-selected Rois.
 
 ### Keep specific Rois
 Keep all Rois that have a desired property (e.g. circularity between two given values).
+
+
+## UnBleach
+
+Correct bleaching in a 2D temporal stack by histogram matching. Match all histograms to the first slice. 
+Usefull for segmentation afterwards.
