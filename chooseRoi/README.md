@@ -14,8 +14,15 @@ Delete the non-selected Rois.
 Select for each z-slice the Roi that have the smallest area among all Rois that are present in each z-slice.
 Delete the non-selected Rois.
 
+### Best mean intensity
+Select for each z-slice the Roi that have the maximal mean intensity among all Rois that are present in the slice.
+Delete the non-selected Rois.
+
 ### Circularity
 Keep all Rois that have circularity between two given values, asked in a prompted dialog.
+
+### Orientation
+Keep all Rois that have a main direction (of the contour, not intensities) between two given values, asked in a prompted dialog.
 
 
 ## Installation

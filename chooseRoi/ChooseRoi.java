@@ -42,26 +42,28 @@ public class ChooseRoi implements PlugIn
 		int curz;
 		int	wini = 0;
 		int doingz = -1;
-		double refarea = 0;
-		double refmean = 0;
+		double refmes = 0;
+		int mesure = 0;
 		switch ( which )
 		{
 			case 0:
-				refarea = 0;
+				refmes = 0;
+				mesure = Measurements.AREA;
 				break;
 			case 1:
-				refarea = imp.getWidth()*imp.getHeight() + 2;
+				refmes = imp.getWidth()*imp.getHeight() + 2;
+				mesure = Measurements.AREA;
 				break;
 			case 2:
-				refmean = 0;
+				refmes = 0;
+				mesure = Measurements.MEAN;
 				break;
 			default:
-				refarea = 0;
-				refmean = 0;
+				refmes = 0;
+				mesure = Measurements.AREA;
 				break;
 		}
-		double marea = refarea;
-		double mmean = refmean;
+		double mmes = refmes;
 		Vector tokeep = new Vector();
 		tokeep.clear();
 		for ( int i = 0; i < allRois.length; i++ )
@@ -72,36 +74,39 @@ public class ChooseRoi implements PlugIn
 			if ( curz > doingz )
 			{
 				tokeep.add( wini );
-				marea = refarea;
+				mmes = refmes;
 				doingz = curz;
 			}
 			rm.select(i);
-			double tmparea = imp.getStatistics().area; 
-			double tmpmean = imp.getStatistics().mean; 
+			
+			double tmpmes;
 			switch ( which )
 			{
 				case 0:
 					// biggest area wins
-					if ( tmparea >= marea )
+					tmpmes	= imp.getStatistics(mesure).area; 
+					if ( tmpmes >= mmes )
 					{
 						wini = i;
-						marea = tmparea;
+						mmes = tmpmes;
 					}
 					break;
 				case 1:
 					// smallest area wins
-					if ( tmparea <= marea )
+					tmpmes	= imp.getStatistics(mesure).area; 
+					if ( tmpmes <= mmes )
 					{
 						wini = i;
-						marea = tmparea;
+						mmes = tmpmes;
 					}
 					break;
 				case 2:
+					tmpmes	= imp.getStatistics(mesure).mean; 
 					// best mean wins
-					if ( tmpmean >= mmean )
+					if ( tmpmes >= mmes )
 					{
 						wini = i;
-						mmean = tmpmean;
+						mmes = tmpmes;
 					}
 					break;
 				default:
@@ -110,7 +115,6 @@ public class ChooseRoi implements PlugIn
 		}
 		// add last z
 		tokeep.add( wini );
-		marea = 0;
 
 		int ndel = allRois.length-tokeep.size();
 		if ( ndel > 0 )
@@ -130,21 +134,36 @@ public class ChooseRoi implements PlugIn
 		}
 	}	
 	
-	public void circularRois()
+	public void rangeRois(String what)
 	{
-		GenericDialog gd = new GenericDialog("Circularity");
-		gd.addNumericField("min_circularity:", 0.5, 2);
-		gd.addNumericField("max_circularity:", 1, 2);
+		GenericDialog gd = new GenericDialog(what);
+		double dmin = 0.5;
+		double dmax = 1;
+		switch ( what )
+		{
+			case "circularity":
+				dmin = 0.5;
+				dmax = 1;
+				break;
+			case "angle":
+				dmin = 0;
+				dmax = 45;
+				break;
+			default:
+				break;
+		}
+		gd.addNumericField("min_"+what, dmin, 2);
+		gd.addNumericField("max_"+what, dmax, 2);
 
 		gd.showDialog();
 		if (gd.wasCanceled()) return;
 		
-		double minc = gd.getNextNumber();
-		double maxc = gd.getNextNumber();
-		keepCircularRois( minc, maxc );
+		double mini = gd.getNextNumber();
+		double maxi = gd.getNextNumber();
+		keepRangeRois( what, mini, maxi );
 	}
 
-	public void keepCircularRois( double circmin, double circmax )
+	public void keepRangeRois( String what, double vmin, double vmax )
 	{
 		RoiManager rm = RoiManager.getInstance();
 		if ( rm == null || rm.getCount() == 0 )
@@ -166,10 +185,25 @@ public class ChooseRoi implements PlugIn
 			rm.select(i);
 			ImageProcessor ip = imp.getProcessor();
 			ip.setRoi( curroi.getPolygon() );
-			ImageStatistics stats = ImageStatistics.getStatistics(ip, Measurements.AREA, cal);
-			double perimeter = curroi.getLength();
-			double circ = perimeter==0.0?0.0:4.0*Math.PI*(stats.area/(perimeter*perimeter));
-			if ( circ >= circmin && circ <= circmax )
+			double val = 0;
+			ImageStatistics stats;	
+			switch( what )
+			{
+				case "circularity":
+					stats = ImageStatistics.getStatistics(ip, Measurements.AREA, cal);
+					double perimeter = curroi.getLength();
+					val = perimeter==0.0?0.0:4.0*Math.PI*(stats.area/(perimeter*perimeter));
+					break;
+				case "angle":
+					stats = ImageStatistics.getStatistics(ip, Measurements.ELLIPSE, cal);
+					val = stats.angle;
+					break;
+				default:
+					val = 0;
+					break;
+			}
+			
+			if ( val >= vmin && val <= vmax )
 				tokeep.add( i );
 		}
 
@@ -218,7 +252,10 @@ public class ChooseRoi implements PlugIn
 				keepRois(2);
 				break;
 			case "circ":
-				circularRois();
+				rangeRois("circularity");
+				break;
+			case "orient":
+				rangeRois("angle");
 				break;
 			default:
 				keepRois(0);

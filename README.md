@@ -24,7 +24,7 @@ For example, select for each z-slice the Roi that have the highest area among al
 Delete the non-selected Rois.
 
 ### Keep specific Rois
-Keep all Rois that have a desired property (e.g. circularity between two given values).
+Keep all Rois that have a desired property (e.g. circularity between two given values, orientation (angle of the Roi main direction) between two specific values.. ).
 
 
 ## UnBleach
