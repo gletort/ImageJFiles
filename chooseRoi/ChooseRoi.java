@@ -164,7 +164,7 @@ public class ChooseRoi implements PlugIn
 	}
 
 	public void keepRangeRois( String what, double vmin, double vmax )
-	{
+	{	
 		RoiManager rm = RoiManager.getInstance();
 		if ( rm == null || rm.getCount() == 0 )
 		{
@@ -225,6 +225,43 @@ public class ChooseRoi implements PlugIn
 		}
 	}	
 
+	public void listPixelInsideRois()
+	{
+		ResultsTable rt = new ResultsTable();
+		RoiManager rm = RoiManager.getInstance();
+		if ( rm == null || rm.getCount() == 0 )
+		{
+			IJ.error("No Rois in Manager");
+			return;
+		}
+
+
+		Roi[] allRois = rm.getRoisAsArray();
+		for ( int i = 0; i < allRois.length; i++ )
+		{
+			Roi curroi = allRois[i];
+			Polygon poly = curroi.getPolygon();
+			Rectangle rect = poly.getBounds();
+			for ( int x = (int) rect.getX(); x < (int) rect.getX()+rect.getWidth(); x++ )
+			{
+				for ( int y = (int) rect.getY(); y < (int) rect.getY()+rect.getHeight(); y++ )
+				{
+					if ( poly.contains(x,y) )
+					{
+						rt.incrementCounter();
+						rt.addValue("RoiNum", i);
+						rt.addValue("X", x);
+						rt.addValue("Y", y);
+						rt.addValue("Z", curroi.getPosition());
+						rt.addResults();
+					}
+				}
+			}
+		}
+
+		rt.updateResults();
+	}
+
 	/** \brief Select one roi by z-slice (biggest area, smallest area)*/
 	public void run(String arg) 
 	{
@@ -256,6 +293,9 @@ public class ChooseRoi implements PlugIn
 				break;
 			case "orient":
 				rangeRois("angle");
+				break;
+			case "inside":
+				listPixelInsideRois();
 				break;
 			default:
 				keepRois(0);

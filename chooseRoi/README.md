@@ -2,6 +2,7 @@
 
  * [Best Roi by z-slice](#select-best-roi)
  * [Keep Roi according to criteria](#keep-roi)
+ * [Pixels inside Rois](#pixels-inside-rois)
  * [Installation](#installation)
 
 ## Select best Roi
@@ -27,6 +28,11 @@ Keep all Rois that have circularity between two given values, asked in a prompte
 ### Orientation
 Keep all Rois that have a main direction (of the contour, not intensities) between two given values, asked in a prompted dialog.
 
+## Pixels inside Rois
+
+### List Pixels inside Rois
+List all the pixels that are inside each Roi currently in the RoiManager (inside the shape). 
+Gives the number of the Roi in the Manager and the (X,y,Z) position of the pixels inside it.
 
 ## Installation
 Copy the ```.jar``` file in the plugins forlder of ImageJ (e.g. ```~/.imageJ/plugins``` on linux) and restart ImageJ.
