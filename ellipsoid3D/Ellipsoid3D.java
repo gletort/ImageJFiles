@@ -29,6 +29,7 @@ public class Ellipsoid3D implements PlugIn
 	double fact = 1;
 	
 	boolean clearRes;
+	boolean drawRes;
 
 
 	/** Ask for specific options */
@@ -55,6 +56,7 @@ public class Ellipsoid3D implements PlugIn
 		gd.addNumericField("In_z: 1 pixel =", cal.pixelDepth, 4);
 		gd.addMessage("-------------------------------------------");
 		gd.addCheckbox( "Clear Results", false );
+		gd.addCheckbox( "Draw ellipsoid", true );
 
 		gd.showDialog();
 		if (gd.wasCanceled()) return;
@@ -67,6 +69,7 @@ public class Ellipsoid3D implements PlugIn
 		cal.pixelDepth = 1;
 		
 		clearRes = gd.getNextBoolean();
+		drawRes = gd.getNextBoolean();
 	}
 
 	/** Close, clear, deselect...*/
@@ -85,7 +88,8 @@ public class Ellipsoid3D implements PlugIn
 		cal.pixelWidth = 1;
 		cal.pixelHeight = 1;
 		cal.pixelDepth = 1;
-		ipcol = new Duplicator().run(imp);
+		if ( drawRes )
+			ipcol = new Duplicator().run(imp);
 
 		rm = RoiManager.getInstance();
 		if ( rm == null )
@@ -140,7 +144,8 @@ public class Ellipsoid3D implements PlugIn
 		String res = elli.getEllipsoid();
 		imp.changes = false;
 		imp.close();
-		drawFitEllipse( elli, "red" );
+		if ( drawRes )
+			drawFitEllipse( elli, "red" );
 		writeResults();	
 	}
 
