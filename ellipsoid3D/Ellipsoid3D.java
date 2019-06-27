@@ -50,9 +50,9 @@ public class Ellipsoid3D implements PlugIn
 			cal.pixelHeight = scaley;
 			cal.pixelDepth = scalez;
 		}
-		gd.addNumericField("In x: 1 pixel =", cal.pixelWidth, 4);
-		gd.addNumericField("In y: 1 pixel =", cal.pixelHeight, 4);
-		gd.addNumericField("In z: 1 pixel =", cal.pixelDepth, 4);
+		gd.addNumericField("In_x: 1 pixel =", cal.pixelWidth, 4);
+		gd.addNumericField("In_y: 1 pixel =", cal.pixelHeight, 4);
+		gd.addNumericField("In_z: 1 pixel =", cal.pixelDepth, 4);
 		gd.addMessage("-------------------------------------------");
 		gd.addCheckbox( "Clear Results", false );
 
