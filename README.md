@@ -6,7 +6,7 @@ plugins/macros for ImageJ/Fiji
  * [Align stack](#align-stack)
  * [Select specific Rois](#choose-roi)
  * [Correct bleaching](#unbleach)
- * [Ellipsoid 3D (fit, measures)](#ellispoid)
+ * [Ellipsoid 3D (fit, measures)](#ellipsoid)
 
 ## Tilt 3D
 Visualisation of 3D stacks.
