@@ -6,6 +6,7 @@ plugins/macros for ImageJ/Fiji
  * [Align stack](#align-stack)
  * [Select specific Rois](#choose-roi)
  * [Correct bleaching](#unbleach)
+ * [Ellipsoid 3D (fit, measures)](#ellispoid)
 
 ## Tilt 3D
 Visualisation of 3D stacks.
@@ -31,3 +32,7 @@ Keep all Rois that have a desired property (e.g. circularity between two given v
 
 Correct bleaching in a 2D temporal stack by histogram matching. Match all histograms to the first slice. 
 Usefull for segmentation afterwards.
+
+## Ellipsoid
+Handle 3D ellisoid operations.
+From a binary stack, calculate the 3D ellipsoid corresponding to the positive pixels. Print its characteristics: centroid position (Xc, Yc, Zc), semi-axis lengths (A, B, C), volume, and eigen vectors (axis directions) (vA, vB, vC). Draw the 3D ellipsoid on the input image for visualisation of the fit.
