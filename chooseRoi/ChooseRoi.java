@@ -261,6 +261,30 @@ public class ChooseRoi implements PlugIn
 
 		rt.updateResults();
 	}
+	
+	public void sortBySlice()
+	{
+		ResultsTable rt = new ResultsTable();
+		RoiManager rm = RoiManager.getInstance();
+		if ( rm == null || rm.getCount() == 0 )
+		{
+			IJ.error("No Rois in Manager");
+			return;
+		}
+
+		Roi[] allRois = rm.getRoisAsArray();
+		rm.reset();
+		for ( int z = 1; z <= imp.getNSlices(); z++ )
+		{
+			imp.setSlice(z);
+			for ( int i = 0; i < allRois.length; i++ )
+			{
+				Roi curroi = allRois[i];
+				if ( curroi.getPosition() == z )
+					rm.addRoi(curroi);	
+			}
+		}
+	}
 
 	/** \brief Select one roi by z-slice (biggest area, smallest area)*/
 	public void run(String arg) 
@@ -296,6 +320,9 @@ public class ChooseRoi implements PlugIn
 				break;
 			case "inside":
 				listPixelInsideRois();
+				break;
+			case "sort":
+				sortBySlice();
 				break;
 			default:
 				keepRois(0);
