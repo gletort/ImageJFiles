@@ -1,5 +1,5 @@
 all:
-	javac -cp /usr/share/java/ij.jar *.java
+	javac -cp /usr/share/java/ij.jar *.java --release 8
 	mv *.class ellip/
 	jar cvf Ellipsoid_3D.jar ellip/*.class plugins.config;
 
