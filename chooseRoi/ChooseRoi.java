@@ -69,15 +69,20 @@ public class ChooseRoi implements PlugIn
 		for ( int i = 0; i < allRois.length; i++ )
 		{
 			Roi curroi = allRois[i];
-			curz = curroi.getPosition();
-			if ( doingz == -1 ) doingz = curz;
-			if ( curz > doingz )
+			imp.setRoi(curroi);
+			if ( imp.getNSlices() > 1 )
 			{
-				tokeep.add( wini );
-				mmes = refmes;
-				doingz = curz;
+				curz = curroi.getPosition();
+				if ( doingz == -1 ) doingz = curz;
+				if ( curz > doingz )
+				{
+					tokeep.add( wini );
+					mmes = refmes;
+					doingz = curz;
+				}
 			}
 			rm.select(i);
+			imp.setRoi(curroi);
 			
 			double tmpmes;
 			switch ( which )
