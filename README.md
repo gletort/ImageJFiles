@@ -8,6 +8,7 @@ plugins/macros for ImageJ/Fiji
  * [Correct bleaching](#unbleach)
  * [Ellipsoid 3D (fit, measures)](#ellipsoid)
  * [LOCO EFA (shape complexity)](#loco-efa)
+ * [Curvautre (unsigned curvature)](#curvature)
 
 ## Tilt 3D
 Visualisation of 3D stacks.
@@ -41,3 +42,6 @@ From a binary stack, calculate the 3D ellipsoid corresponding to the positive pi
 ## Loco EFA
 Measure characteristics of the shape complexity with the LOCO-EFA method (lobe contribution elliptic Fourier analysis), defined in [Sanchez-Corrales et al. (2018)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5897594/).
 Reconstruct the shape with 2 to 50 modes as Roi, and calculates the contribution mode, distance between the shapes and entropy of the shape.
+
+## Curvature
+Calculate unsigned curvature along a ROI.
