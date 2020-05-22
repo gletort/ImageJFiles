@@ -2,10 +2,9 @@
 /** 
  * \brief Plugin to calculte LOCO-EFA (Sanchez-Corrales et al 2018) shape description.
  *
- * \details For each z-slice, when there are several Rois associated to that slice, select the "best" one (e.g. largest area)
  *
  * \author G. Letort, College de France
- * \date created on 2019/02/22
+ * \date created on 2020/05/18
  * */
 
 package loco;
