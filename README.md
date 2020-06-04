@@ -9,6 +9,7 @@ plugins/macros for ImageJ/Fiji
  * [Ellipsoid 3D (fit, measures)](#ellipsoid)
  * [LOCO EFA (shape complexity)](#loco-efa)
  * [Curvautre (unsigned curvature)](#curvature)
+ * [Moran index (spatial auto-correlation](#moran-index)
 
 ## Tilt 3D
 Visualisation of 3D stacks.
@@ -45,3 +46,7 @@ Reconstruct the shape with 2 to 50 modes as Roi, and calculates the contribution
 
 ## Curvature
 Calculate unsigned curvature along a ROI.
+
+## Moran index
+Calculate Moran index (Moran 1950) on first Roi in RoiManager, with weights being 1 if pixel j inside k-neighbors of pixel i (k is a user defined parameter), 0 otherwise.
+
