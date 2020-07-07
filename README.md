@@ -10,6 +10,7 @@ plugins/macros for ImageJ/Fiji
  * [LOCO EFA (shape complexity)](#loco-efa)
  * [Curvautre (unsigned curvature)](#curvature)
  * [Moran index (spatial auto-correlation](#moran-index)
+ * [Cortex segmentation (from cortex marker)](#cortex-segmentation)
 
 ## Tilt 3D
 Visualisation of 3D stacks.
@@ -50,3 +51,6 @@ Calculate unsigned curvature along a ROI.
 ## Moran index
 Calculate Moran index (Moran 1950) on first Roi in RoiManager, with weights being 1 if pixel j inside k-neighbors of pixel i (k is a user defined parameter), 0 otherwise.
 
+## Cortex segmentation
+Segment cortex from fluorescent marker stack.
+Look at local maxima on each angle around the center. 
