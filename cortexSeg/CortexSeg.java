@@ -27,11 +27,14 @@ public class CortexSeg implements PlugIn
 	ImagePlus imp;
 	RoiManager rm;
 	String dir;
+	int mode;
 	
 	public float[] angleMax( float cx, float cy, float radius, double ang )
 	{
+		IJ.run(imp, "Select None", "");
+		double meanvals = imp.getStatistics().mean;
 		Line myline = new Line(cx, cy, cx+radius*Math.cos(ang), cy+radius*Math.sin(ang));
-		myline.setStrokeWidth(40);
+		myline.setStrokeWidth(50);
 		imp.setRoi(myline);
 		double[] vals = myline.getPixels();
 		float[] res = new float[2];
@@ -39,16 +42,68 @@ public class CortexSeg implements PlugIn
 		res[1] = 0;
 		double max = 0;
 
-		for ( int i = 1; i < (vals.length-1); i++ )
+		// look for highest maxima
+		if ( mode == 0 )
 		{
-			if ( vals[i] > max )
+			for ( int i = 1; i < (vals.length-1); i++ )
 			{
-				max = vals[i];
-				res[0] = ((float)cx+(float)(radius*Math.cos(ang)*i/vals.length));	
-				res[1] = ((float)cy+(float)(radius*Math.sin(ang)*i/vals.length));	
-			}	
+				if ( vals[i] > max )
+				{
+					max = vals[i];
+					res[0] = ((float)cx+(float)(radius*Math.cos(ang)*i/vals.length));	
+					res[1] = ((float)cy+(float)(radius*Math.sin(ang)*i/vals.length));	
+				}
+			}
+			return res;
 		}
+		
+		// look for first maxima
+		if ( mode == 1 )
+		{
+			vals = smoothTab(vals);
+			int step = 20;
+			double refdiff = Math.abs(vals[step]-vals[0])/step;
+			for ( int j =0; j < 9; j++)
+			{
+				refdiff += Math.abs(vals[step+j]-vals[j])/step;
+			}
+			refdiff /= 10;
+			
+			int i = step;
+			while (i < (vals.length-1) )
+			{
+				// go to local maxima
+				while ( (i<vals.length-2) & (vals[i+1] > vals[i]) ) i++;
+			
+				// high enough
+				if ( vals[i] > meanvals*1.25 )
+				{
+					// high slope
+					double diff = (vals[i] - vals[i-step])/step;
+					if ( diff > refdiff*5 )
+					{
+						res[0] = ((float)cx+(float)(radius*Math.cos(ang)*i/vals.length));	
+						res[1] = ((float)cy+(float)(radius*Math.sin(ang)*i/vals.length));	
+						return res;
+					}
+				}
+				// continue
+				i++;
+			}
+		}
+		res[0] = ((float)cx+(float)(radius*Math.cos(ang)));	
+		res[1] = ((float)cy+(float)(radius*Math.sin(ang)));	
 		return res;
+	}
+
+	public double meanVal( double[] tab )
+	{
+		double res = 0.0;
+		for ( int i=0; i < tab.length; i++)
+		{
+			res += tab[i];
+		}
+		return res/tab.length;
 	}
 	
 	public void findContour()
@@ -100,7 +155,33 @@ public class CortexSeg implements PlugIn
 		}
 
 	}
+
+	public double[] smoothTab( double[] tab )
+	{
+		double[] res = new double[tab.length];
+		int vois = 5;
+		for ( int i = 0; i < tab.length; i++ )
+		{
+			int	imin = (int) Math.max(i-vois, 0);
+			int imax = (int) Math.min(i+vois, tab.length-1);
+
+			res[i] = meanWindow( tab, imin, imax );
+		}
+		return res;
+	}
 	
+	public double meanWindow( double[] tab, int dep, int end )
+	{
+		double res = 0;
+		int n = 0;
+		for ( int i = dep; i <= end; i++ )
+		{
+			res += tab[i];
+			n++;
+		}
+		return res/n;
+	}
+
 	public float meanCircularWindow( float[] tab, int mid, int size, boolean self)
 	{
 		float res = 0;
@@ -138,14 +219,17 @@ public class CortexSeg implements PlugIn
 
 	public void run(String arg)
 	{
-		IJ.run("Close All");
+		//IJ.run("Close All");
 
 		rm = RoiManager.getInstance();
 		if ( rm == null )
 			rm = new RoiManager();
 		rm.reset();
 		
-		imp = IJ.openImage();
+		ImagePlus impi = IJ.getImage();
+		imp = impi.duplicate();
+		//imp.show();
+		IJ.run(imp, "Subtract Background...", "rolling=100 stack");
 		//imp.show();
 		rm.runCommand(imp,"Deselect");
 		IJ.run(imp, "Select None", "");
@@ -158,11 +242,17 @@ public class CortexSeg implements PlugIn
 		if (! directory.exists())
 		        directory.mkdir();
 */
+		mode = 0;
+		if ( arg.equals("min") )
+		{
+			mode = 1;
+		}
 		findContour();
-		rm.runCommand(imp,"Deselect");
-		String imname = imp.getTitle();
+		//rm.runCommand(imp,"Deselect");
+		//String imname = imp.getTitle();
 		//String purname = imname.substring(0, imname.lastIndexOf('.'));
 		//rm.runCommand("Save", dir+"/cortex/"+purname+"_Cortex.zip");
-		imp.show();
+		//imp.show();
+		imp.close();
 	}
 }
