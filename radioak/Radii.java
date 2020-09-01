@@ -50,33 +50,52 @@ public class Radii
 	public void getRadii( String dir, String purname, double scalexy )
 	{
 		double ang = 0;
-		int x, y;
+		double x, y;
 		double rad = 0;
 		ResultsTable myrt = new ResultsTable();
 		DecimalFormatSymbols nf = new DecimalFormatSymbols(Locale.US);
 		DecimalFormat df = new DecimalFormat("0.00", nf);
 		
 		// get radius
-		for (int i=0; i < rm.getCount(); i++)
+		Roi cur;
+		double[] cent = new double[2];
+		int pos;
+		int nrois = rm.getCount();
+		for (int i=0; i < nrois; i++)
 		{
-			Roi cur = rm.getRoi(i);
+			cur = rm.getRoi(i);
 			// get center coordinates
-			double[] cent = cur.getContourCentroid(); //xcent, ycent
-			int pos = cur.getPosition(); // which slice (time point)
+			cent = cur.getContourCentroid(); //xcent, ycent
+			pos = cur.getPosition(); // which slice (time point)
+			// if Roi not associated with slice, assume ordered Rois
+			if ( pos == 0 )
+			{
+				pos = i+1;
+				cur.setPosition(pos);
+				rm.setRoi(cur, i);
+			}
 			myrt.incrementCounter();
 			ang = 0;
-
 			for ( int a = 0; a < nang; a++ )
 			{
-				x = (int) cent[0];
-				y = (int) cent[1];
-				rad = 0;
-				// look for Roi limit in the current radius
-				while ( cur.contains(x,y) ) 
+				rad = 20;
+				x = (cent[0]+rad*Math.cos(ang));
+				y = (cent[1]+rad*Math.sin(ang));
+				// started to far already, goes back to center
+				if ( !cur.contains((int)x,(int)y) )
 				{
-					x = (int) (cent[0] + rad*Math.cos(ang));
-					y = (int) (cent[1] + rad*Math.sin(ang));
-					rad = rad + 0.01;
+					rad = 0;
+					x = cent[0];
+					y = cent[1];
+				}
+				double dcang = 0.05*Math.cos(ang);
+				double dsang = 0.05*Math.sin(ang);
+				// look for Roi limit in the current radius
+				while ( cur.contains((int)x,(int)y) ) 
+				{
+					x += dcang;
+					y += dsang;
+					rad = rad + 0.05;
 				}
 				myrt.addValue("Slice", pos);
 				myrt.addValue("Ang_"+df.format(ang), rad*scalexy);
@@ -92,24 +111,31 @@ public class Radii
 			myrt.addResults();
 		}
 		for ( int i = 0; i < nang; i++ )
-			mrad[i] /= rm.getCount();
+			mrad[i] /= nrois;
 		myrt.save(dir+"/radioakres/"+purname+"_anglesRadii.csv");
+		myrt.reset();
 	}
 
 	public void drawShortLong(int longr, int longg, int longb, int shortr, int shortg, int shortb)
 	{
+		int pmin = 0;
+		int pmax = 0;
+		int pos;
+		double[] cent = new double[2];
+		double vmin, vmax;
+		Roi cur;
 		for ( int i = 0; i < rm.getCount(); i++ )
 		{
-			Roi cur = rm.getRoi(i);
-			double[] cent = cur.getContourCentroid();
-			int pos = cur.getPosition(); // in case not ordered
+			cur = rm.getRoi(i);
+			cent = cur.getContourCentroid();
+			pos = cur.getPosition(); // in case not ordered
 			imp.setPosition(pos);
 
 			// find min and max radius for each slice
-			int pmin = 0;
-			int pmax = 0;
-			double vmin = 10000;
-			double vmax = 0;
+			pmin = 0;
+			pmax = 0;
+			vmin = 10000;
+			vmax = 0;
 			for ( int j = 0; j < nang; j++ )
 			{
 				if ( radi[i][j] > vmax )
@@ -139,11 +165,14 @@ public class Radii
 	public void drawDynamic(double th)
 	{
 		int xpoint, ypoint;
+		int r,g,b;
+		double[] cent = new double[2];
+		Roi cur;	
 
 		for (int i =0; i < rm.getCount(); i++)
 		{
-			Roi cur = rm.getRoi(i);
-			double[] cent = cur.getContourCentroid();
+			cur = rm.getRoi(i);
+			cent = cur.getContourCentroid();
 			imp.setPosition(cur.getPosition());
 			
 			for ( int j = 0; j < nang; j++ )
@@ -152,9 +181,9 @@ public class Radii
 				xpoint = (int) (cent[0] + radi[i][j]*Math.cos( dang*j ));
 				ypoint = (int) (cent[1] + radi[i][j]*Math.sin( dang*j ));
 		
-				int r = 255;
-				int b = 255;
-				int g = 255;	
+				r = 255;
+				b = 255;
+				g = 255;	
 				if (i > 0 )
 				{
 				 if ( radi[i-1][j] < radi[i][j]*(1-th) )
@@ -203,10 +232,11 @@ public class Radii
 		int[] ypoints = new int[nang];
 		int[] xmpoints = new int[nang];
 		int[] ympoints = new int[nang];
+		double[] cent = new double[2];
 		for (int i =0; i < rm.getCount(); i++)
 		{
 			Roi cur = rm.getRoi(i);
-			double[] cent = cur.getContourCentroid();
+			cent = cur.getContourCentroid();
 			imp.setPosition(cur.getPosition());
 
 			for ( int j = 0; j < nang; j++ )
@@ -251,14 +281,16 @@ public void readRadioakFile(String infile, double scalexy)
 			/* open the file */
 			BufferedReader r = new BufferedReader(new FileReader(infile));
 			String line = r.readLine();  // skip title line
+			double rad;
+			int i;
 			while ((line = r.readLine()) != null) 
 			{
 				line = line.trim();
 				String[] cur = line.split(",");
-				int i = (int)(nf.parse(cur[0]).doubleValue());
+				i = (int)(nf.parse(cur[0]).doubleValue());
 				for ( int j = 0; j < cur.length-1; j++ )
 				{
-					double rad = nf.parse(cur[j+1]).doubleValue()/scalexy ;
+					rad = nf.parse(cur[j+1]).doubleValue()/scalexy ;
 					radi[i-1][j] = rad;
 					mrad[j] += rad;
 					if ( rad > maxrad[j] )

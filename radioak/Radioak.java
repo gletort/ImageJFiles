@@ -24,10 +24,11 @@ import ij.io.*;
 
 public class Radioak implements PlugIn
 {
+	 private static final long MEGABYTE = 1024L * 1024L;
+	Radii rad;
 	ImagePlus imp;
 	Calibration cal;
 	RoiManager rm;
-	Radii rad;
 	int nangle = 100;
 	double scalexy = 0.1135;
 	boolean drawShortLong;
@@ -119,41 +120,10 @@ public class Radioak implements PlugIn
 		cal.pixelHeight = 1;
 		cal.pixelDepth = 1;
 	}
-	
-	public void run(String arg)
+
+	public void getRadii(String dir, String name)
 	{
-		// prepare all
-		if ( !getParameters() ) { return; }
-		IJ.run("Close All");
-
-		rm = RoiManager.getInstance();
-		if ( rm == null )
-			rm = new RoiManager();
-		rm.reset();
-		
-		
-		// open image and be sure all is reset
-		 OpenDialog od = new OpenDialog("Open", "");
-		String dir = od.getDirectory();
-		String name = od.getFileName();
-		IJ.open(dir+name);
-		imp = IJ.getImage();
-		imp.setTitle(name+"_radioak.tif");
-		initCalibration();
-		imp.show();
-		rm.runCommand(imp,"Deselect");
-		IJ.run(imp, "Select None", "");
-		IJ.run("Select None");
-		IJ.run(imp, "Remove Overlay", "");
-
-		File directory = new File(dir+"/radioakres");
-		if (! directory.exists())
-		          directory.mkdir();
-
-		// open Rois
-		rm.runCommand("Open", "");
-		// get radius
-		
+		Radii rad;	
 		if (!reload)
 		{
 			rad = new Radii( rm.getCount(), nangle, imp, rm );
@@ -165,7 +135,6 @@ public class Radioak implements PlugIn
 			nangle = radin.getNumberAngle(dir+"/radioakres/"+name+"_anglesRadii.csv" );
 			rad = new Radii( rm.getCount(), nangle, imp, rm );
 			rad.readRadioakFile( dir+"/radioakres/"+name+"_anglesRadii.csv", scalexy );
-
 		}
 
 		IJ.run(imp, "RGB Color", "");
@@ -187,7 +156,105 @@ public class Radioak implements PlugIn
 		{
 			rad.drawDynamic(threshold);
 		}
-		//imp.changes = false;
-		//imp.close();
 	}
+
+	public void run(String arg)
+	{
+		// prepare all
+		if ( !getParameters() ) { return; }
+		IJ.run("Close All");
+
+		rm = RoiManager.getInstance();
+		if ( rm == null )
+			rm = new RoiManager();
+		rm.reset();
+		
+		if ( arg.equals("fold") )
+		{
+			String dir = IJ.getDirectory("Choose images directory");	
+			File thedir = new File(dir); 
+			File[] fileList = thedir.listFiles(); 
+			File directory = new File(dir+"/radioakres");
+			if (! directory.exists())
+		          directory.mkdir();
+			for ( int i = 0; i < fileList.length; i++ )
+			{
+				File fily = fileList[i];
+				if ( fily.isFile() )
+				{
+					String fileName = fily.getName();
+					int j = fileName.lastIndexOf('.');
+					if (j > 0) 
+					{
+						String extension = fileName.substring(j);
+						if ( extension.equals(".tif") | extension.equals(".TIF") )
+						{
+							IJ.log("Doing "+dir+fileName);
+							IJ.run("Close All", "");
+							rm.reset();
+							String roiname = "cortex/"+(fileName.substring(0,j))+"_UnetCortex.zip";
+							File rois = new File(dir+roiname);
+							if ( rois.exists() )
+							{
+								IJ.open(dir+fileName);
+								imp = IJ.getImage();
+								imp.setTitle(fileName+"_radioak.tif");
+								initCalibration();
+								imp.show();
+								rm.runCommand(imp,"Deselect");
+								IJ.run(imp, "Select None", "");
+								IJ.run("Select None");
+								IJ.run(imp, "Remove Overlay", "");
+								rm.runCommand("Open", dir+roiname);
+								getRadii(dir, fileName);
+								IJ.run(imp, "Select None", "");
+								IJ.saveAs(imp, "Tiff", dir+"radioakres/"+fileName+"_radius.tif");	
+								imp.changes = false;
+								imp.close();
+							}
+							else
+							{
+								IJ.log("Roi file "+dir+roiname+" not found");
+							}
+						}
+					}
+				}	
+			}
+		}
+		else
+		{	
+			// open image and be sure all is reset
+			OpenDialog od = new OpenDialog("Open", "");
+			String dir = od.getDirectory();
+			File directory = new File(dir+"/radioakres");
+			if (! directory.exists())
+		          directory.mkdir();
+			String name = od.getFileName();
+			IJ.open(dir+name);
+			imp = IJ.getImage();
+			imp.setTitle(name+"_radioak.tif");
+			initCalibration();
+			imp.show();
+			rm.runCommand(imp,"Deselect");
+			IJ.run(imp, "Select None", "");
+			IJ.run("Select None");
+			IJ.run(imp, "Remove Overlay", "");
+		
+			// open Rois
+			rm.runCommand("Open", "");
+			getRadii(dir, name);
+		}
+		/**
+		// // Get the Java runtime
+        Runtime runtime = Runtime.getRuntime();
+        // Run the garbage collector
+        runtime.gc();
+        // Calculate the used memory
+        long memory = runtime.totalMemory() - runtime.freeMemory();
+        System.out.println("Used memory is bytes: " + memory);
+        System.out.println("Used memory is megabytes: "+ bytesToMegabytes(memory));*/
+	}
+	  public static long bytesToMegabytes(long bytes) {
+        return bytes / MEGABYTE;
+    }
 }
