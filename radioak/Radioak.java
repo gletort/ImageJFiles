@@ -1,5 +1,6 @@
 /** 
  * \brief Plugin to calculate the radius of an Roi all around the Roi center, usefull to calculate shape fluctuations.
+ * Options to visualise the radii variation
  *
  *
  * \author G. Letort, College de France
@@ -29,22 +30,25 @@ public class Radioak implements PlugIn
 	ImagePlus imp;
 	Calibration cal;
 	RoiManager rm;
-	int nangle = 100;
-	double scalexy = 0.1135;
-	boolean drawShortLong;
-	int slr;
+	int nangle = 100; // angular resolution
+	double scalexy = 0.1135; // image scale
+	boolean drawShortLong; // option: draw shortest and longest radius on each slice
+	// colors options
+	int slr; 
 	int slg;
 	int slb;
 	int shr;
 	int shg;
 	int shb;
+	// option draw average shape of cortex
 	boolean drawMeanShape;
+	// colors
 	int msr;
 	int msg;
 	int msb;
-	boolean drawDynamic;
-	double threshold;
-	boolean reload;
+	boolean drawDynamic; // draw radii variations
+	double threshold; // threshold to consider as increasing or decreasing
+	boolean reload; // read a radii file
 
 	/** \brief Dialog window */
 	public boolean getParameters()
@@ -244,17 +248,5 @@ public class Radioak implements PlugIn
 			rm.runCommand("Open", "");
 			getRadii(dir, name);
 		}
-		/**
-		// // Get the Java runtime
-        Runtime runtime = Runtime.getRuntime();
-        // Run the garbage collector
-        runtime.gc();
-        // Calculate the used memory
-        long memory = runtime.totalMemory() - runtime.freeMemory();
-        System.out.println("Used memory is bytes: " + memory);
-        System.out.println("Used memory is megabytes: "+ bytesToMegabytes(memory));*/
-	}
-	  public static long bytesToMegabytes(long bytes) {
-        return bytes / MEGABYTE;
     }
 }

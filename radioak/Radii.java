@@ -116,6 +116,7 @@ public class Radii
 		myrt.reset();
 	}
 
+	/** \brief Draw shortest and longest radius in each slice */
 	public void drawShortLong(int longr, int longg, int longb, int shortr, int shortg, int shortb)
 	{
 		int pmin = 0;
@@ -162,6 +163,7 @@ public class Radii
 		}	
 	}
 
+	/** \brief Color the points at each radius according to its dynamic with previous slice (increasing, decreasing, stable) */
 	public void drawDynamic(double th)
 	{
 		int xpoint, ypoint;
@@ -203,7 +205,8 @@ public class Radii
 			}
 		}
 	}
-	
+
+/** \brief Draw the average shape over all time points */	
 	public void drawMeanShape()
 	{
 		int[] xpoints = new int[nang];
@@ -273,7 +276,8 @@ public class Radii
 		}
 		return res;
 	}
-	
+
+/**\brief load a Radioak file */	
 public void readRadioakFile(String infile, double scalexy)
 	{
 		NumberFormat nf = NumberFormat.getInstance();
