@@ -11,6 +11,7 @@ plugins/macros for ImageJ/Fiji
  * [Curvautre (unsigned curvature)](#curvature)
  * [Moran index (spatial auto-correlation](#moran-index)
  * [Cortex segmentation (from cortex marker)](#cortex-segmentation)
+ * [Radioak plugin (radius)](#radioak-plugin)
 
 ## Tilt 3D
 Visualisation of 3D stacks.
@@ -54,3 +55,8 @@ Calculate Moran index (Moran 1950) on first Roi in RoiManager, with weights bein
 ## Cortex segmentation
 Segment cortex from fluorescent marker stack.
 Look at local maxima on each angle around the center. 
+
+## Radioak plugin
+Extract the values of the radius of a given Roi at n angles around its center.
+Allows to quantifiy the shape fluctuations. 
+Offers option to visualize these dynamics.
