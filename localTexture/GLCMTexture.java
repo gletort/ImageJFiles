@@ -11,12 +11,13 @@ import ij.measure.ResultsTable;
 
 public class GLCMTexture
 {
-	int step = 1;
 	double angle = 0;
+	double step = 1;
 
-	public GLCMTexture( double ang )
+	public GLCMTexture( double ang, double ste )
 	{
 		angle = ang;
+		step = ste;
 	}
 
 	public double calcTexture(ImageProcessor ip, Roi roi, String name )

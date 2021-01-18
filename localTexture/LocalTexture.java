@@ -25,6 +25,7 @@ public class LocalTexture implements PlugIn
 	int wsize=20;
 	int step=5;
 	double angle = 0;
+	double glcmstep = 1;
 	String texture;
 
 	/** Be sure there s no calibration */
@@ -62,6 +63,7 @@ public class LocalTexture implements PlugIn
 		textures[8] = "GLCMVariance";
 		gd.addChoice("Texture", textures, textures[1]);
 		gd.addNumericField("GLCM_angle", angle, 2);
+		gd.addNumericField("GLCM_step", glcmstep, 1);
 		gd.showDialog();
 		if (gd.wasCanceled()) return false;
 
@@ -69,12 +71,13 @@ public class LocalTexture implements PlugIn
 		step = (int) gd.getNextNumber();
 		texture = gd.getNextChoice();
 		angle = gd.getNextNumber();
+		glcmstep = gd.getNextNumber();
 		return true;
 	}
 
 	public void getTexture()
 	{
-		GLCMTexture glcm = new GLCMTexture(angle);
+		GLCMTexture glcm = new GLCMTexture(angle, glcmstep);
 		ImageProcessor ip = itext.getProcessor();
 		for ( int i = 0; i < (imp.getWidth()-wsize); i+= step )
 		{
