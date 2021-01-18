@@ -8,10 +8,11 @@ plugins/macros for ImageJ/Fiji
  * [Correct bleaching](#unbleach)
  * [Ellipsoid 3D (fit, measures)](#ellipsoid)
  * [LOCO EFA (shape complexity)](#loco-efa)
- * [Curvautre (unsigned curvature)](#curvature)
+ * [Curvature (unsigned curvature)](#curvature)
  * [Moran index (spatial auto-correlation](#moran-index)
  * [Cortex segmentation (from cortex marker)](#cortex-segmentation)
  * [Radioak plugin (radius)](#radioak-plugin)
+ * [Local texture (GLCM)](#local-texture)
 
 ## Tilt 3D
 Visualisation of 3D stacks.
@@ -60,3 +61,8 @@ Look at local maxima on each angle around the center.
 Extract the values of the radius of a given Roi at n angles around its center.
 Allows to quantifiy the shape fluctuations. 
 Offers option to visualize these dynamics.
+
+## Local texture
+Calculate one of the GLCM textures in a moving window of a given size. 
+Output a new image with the value of the chosen texture in each of the moving window.
+Windows move with step size in x and y of the parameter step, and calculate the texture in a neighborhood of given size. 
