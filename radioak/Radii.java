@@ -20,8 +20,9 @@ public class Radii
 	double[] mrad;
 	double[] minrad;
 	double[] maxrad;
+	int intensity_rad;
 
-	public Radii( int nt, int na, ImagePlus ip, RoiManager rman )
+	public Radii( int nt, int na, ImagePlus ip, RoiManager rman, int intensity_radius )
 	{
 		radi = new double[nt][na];
 		mrad = new double[na];
@@ -32,6 +33,7 @@ public class Radii
 		imp = ip;
 		rm = rman;
 		dang = 2*Math.PI/nang; // discretisatin in nang angles
+		intensity_rad = intensity_radius;
 
 		for (int i = 0; i < ntime; i++ )
 		{
@@ -55,7 +57,9 @@ public class Radii
 		ResultsTable myrt = new ResultsTable();
 		DecimalFormatSymbols nf = new DecimalFormatSymbols(Locale.US);
 		DecimalFormat df = new DecimalFormat("0.00", nf);
-		
+		ImagePlus meanimg = imp.duplicate();
+		IJ.run(meanimg, "Mean...", "radius="+intensity_rad);
+			
 		// get radius
 		Roi cur;
 		double[] cent = new double[2];
@@ -74,7 +78,6 @@ public class Radii
 				cur.setPosition(pos);
 				rm.setRoi(cur, i);
 			}
-			myrt.incrementCounter();
 			ang = 0;
 			for ( int a = 0; a < nang; a++ )
 			{
@@ -97,8 +100,12 @@ public class Radii
 					y += dsang;
 					rad = rad + 0.05;
 				}
+				myrt.incrementCounter();
 				myrt.addValue("Slice", pos);
-				myrt.addValue("Ang_"+df.format(ang), rad*scalexy);
+				myrt.addValue("Angle", df.format(ang));
+				myrt.addValue("Radius", rad*scalexy);
+				int inten = meanimg.getPixel((int)x,(int)y)[0];
+				myrt.addValue("Intensity", inten);
 				ang = ang + dang;
 				radi[pos-1][a] = rad;
 				mrad[a] += rad;
@@ -114,6 +121,8 @@ public class Radii
 			mrad[i] /= nrois;
 		myrt.save(dir+"/radioakres/"+purname+"_anglesRadii.csv");
 		myrt.reset();
+		meanimg.changes = false;
+		meanimg.close();
 	}
 
 	/** \brief Draw shortest and longest radius in each slice */

@@ -49,6 +49,7 @@ public class Radioak implements PlugIn
 	boolean drawDynamic; // draw radii variations
 	double threshold; // threshold to consider as increasing or decreasing
 	boolean reload; // read a radii file
+	int intensity_radius; // average local intensity
 
 	/** \brief Dialog window */
 	public boolean getParameters()
@@ -87,6 +88,8 @@ public class Radioak implements PlugIn
 		gd.addCheckbox("Draw dynamic", true);
 		//gd.addToSameRow();
 		gd.addNumericField("Threshold for growing/shrinking", 0.01, 2);	
+		gd.addMessage("----------------------------------- ");
+		gd.addNumericField("Local intensity smoothing", 1, 0);	
 
 		gd.showDialog();
 		if (gd.wasCanceled()) return false;
@@ -108,6 +111,7 @@ public class Radioak implements PlugIn
 		msb = (int) gd.getNextNumber();
 		drawDynamic = gd.getNextBoolean();
 		threshold = gd.getNextNumber();
+		intensity_radius = (int) gd.getNextNumber();
 		return true;
 	}
 
@@ -130,14 +134,14 @@ public class Radioak implements PlugIn
 		Radii rad;	
 		if (!reload)
 		{
-			rad = new Radii( rm.getCount(), nangle, imp, rm );
+			rad = new Radii( rm.getCount(), nangle, imp, rm, intensity_radius );
 			rad.getRadii( dir, name, scalexy );
 		}
 		else
 		{
-			Radii radin = new Radii(1,1,imp,rm);
+			Radii radin = new Radii(1,1,imp,rm, intensity_radius);
 			nangle = radin.getNumberAngle(dir+"/radioakres/"+name+"_anglesRadii.csv" );
-			rad = new Radii( rm.getCount(), nangle, imp, rm );
+			rad = new Radii( rm.getCount(), nangle, imp, rm, intensity_radius );
 			rad.readRadioakFile( dir+"/radioakres/"+name+"_anglesRadii.csv", scalexy );
 		}
 
@@ -196,8 +200,13 @@ public class Radioak implements PlugIn
 							IJ.log("Doing "+dir+fileName);
 							IJ.run("Close All", "");
 							rm.reset();
-							String roiname = "cortex/"+(fileName.substring(0,j))+"_UnetCortex.zip";
+							String roiname = "contours/"+(fileName.substring(0,j))+"_UnetCortex.zip";
 							File rois = new File(dir+roiname);
+							if( !rois.exists() ) 
+							{
+								// previous version of Oocytor output
+								roiname = "cortex/"+(fileName.substring(0,j))+"_UnetCortex.zip";
+							}
 							if ( rois.exists() )
 							{
 								IJ.open(dir+fileName);
@@ -245,7 +254,15 @@ public class Radioak implements PlugIn
 			IJ.run(imp, "Remove Overlay", "");
 		
 			// open Rois
-			rm.runCommand("Open", "");
+			int j = name.lastIndexOf('.');
+			String roiname = "contours/"+(name.substring(0,j))+"_UnetCortex.zip";
+			File rois = new File(dir+roiname);
+			if( !rois.exists() )
+			{
+				roiname = IJ.getFilePath("Choose cortex roi file");
+				rois = new File(roiname);
+			}	
+			rm.runCommand("Open", rois.getPath());
 			getRadii(dir, name);
 		}
     }
