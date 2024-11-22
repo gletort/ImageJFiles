@@ -22,7 +22,16 @@ public class Radii
 	double[] maxrad;
 	int intensity_rad;
 
-	public Radii( int nt, int na, ImagePlus ip, RoiManager rman, int intensity_radius )
+	/**\brief Constructor */
+	public Radii( ImagePlus ip, RoiManager rman, int intensity_radius )
+	{
+		imp = ip;
+		rm = rman;
+		intensity_rad = intensity_radius;
+	}
+	
+	/**\brief Initialization */
+	public void set_parameters( int nt, int na )
 	{
 		radi = new double[nt][na];
 		mrad = new double[na];
@@ -30,10 +39,7 @@ public class Radii
 		maxrad = new double[na];
 		ntime = nt;
 		nang = na;
-		imp = ip;
-		rm = rman;
 		dang = 2*Math.PI/nang; // discretisatin in nang angles
-		intensity_rad = intensity_radius;
 
 		for (int i = 0; i < ntime; i++ )
 		{
@@ -46,6 +52,17 @@ public class Radii
 			minrad[j] = 10000;
 			maxrad[j] = 0;
 		}
+	}
+
+	/**\brief get the number of angles to have a given arc length*/
+	public int calculateNbAngleFromArcLength( double arc_length )
+	{
+		// Get the first ROI
+		Roi first = rm.getRoi(0);
+		// Get its perimeter and divide it by the arc_length
+		double perim = first.getLength();
+		int nangle = (int) Math.round( perim/arc_length );
+		return nangle;
 	}
 
 	/**\brief get Roi radius at a given angle around its center */

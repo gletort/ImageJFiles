@@ -31,6 +31,8 @@ public class Radioak implements PlugIn
 	Calibration cal;
 	RoiManager rm;
 	int nangle = 100; // angular resolution
+	double arclength = 5; // arc length
+	boolean useArc = false; // use arc length or number of angles
 	double scalexy = 0.1135; // image scale
 	boolean drawShortLong; // option: draw shortest and longest radius on each slice
 	// colors options
@@ -57,8 +59,11 @@ public class Radioak implements PlugIn
 		GenericDialog gd = new GenericDialog("Options", IJ.getInstance() );
 		Font boldy = new Font("SansSerif", Font.BOLD, 12);
 		
-		gd.addNumericField("number_of_angles:", nangle);
+		gd.addMessage("Choose a number of angles to measure or a constant arc length:");
+		gd.addCheckbox("Use_arc_length", false);
+		gd.addNumericField("arc_length_(pixels):", arclength);
 		gd.addToSameRow();
+		gd.addNumericField("number_of_angles:", nangle);
 		gd.addNumericField("scale:", scalexy, 4);
 		gd.addToSameRow();
 		gd.addMessage("(1 pixel=..µm)");
@@ -94,6 +99,8 @@ public class Radioak implements PlugIn
 		gd.showDialog();
 		if (gd.wasCanceled()) return false;
 
+		useArc = gd.getNextBoolean();
+		arclength = (double) gd.getNextNumber();
 		nangle = (int) gd.getNextNumber();
 		scalexy = gd.getNextNumber();
 		reload = gd.getNextBoolean();
@@ -134,14 +141,21 @@ public class Radioak implements PlugIn
 		Radii rad;	
 		if (!reload)
 		{
-			rad = new Radii( rm.getCount(), nangle, imp, rm, intensity_radius );
+			rad = new Radii( imp, rm, intensity_radius );
+			if (useArc)
+			{
+				nangle = rad.calculateNbAngleFromArcLength( arclength );
+				System.out.println("Nb angle "+nangle);
+			}
+			rad.set_parameters( rm.getCount(), nangle );
 			rad.getRadii( dir, name, scalexy );
 		}
 		else
 		{
-			Radii radin = new Radii(1,1,imp,rm, intensity_radius);
+			Radii radin = new Radii( imp,rm, intensity_radius );
 			nangle = radin.getNumberAngle(dir+"/radioakres/"+name+"_anglesRadii.csv" );
-			rad = new Radii( rm.getCount(), nangle, imp, rm, intensity_radius );
+			rad = new Radii( imp, rm, intensity_radius );
+			rad.set_parameters( rm.getCount(), nangle );
 			rad.readRadioakFile( dir+"/radioakres/"+name+"_anglesRadii.csv", scalexy );
 		}
 
