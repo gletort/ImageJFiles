@@ -25,7 +25,7 @@ import ij.io.*;
 
 public class Radioak implements PlugIn
 {
-	 private static final long MEGABYTE = 1024L * 1024L;
+	private static final long MEGABYTE = 1024L * 1024L;
 	Radii rad;
 	ImagePlus imp;
 	Calibration cal;

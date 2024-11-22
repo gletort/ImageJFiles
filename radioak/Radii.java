@@ -73,7 +73,7 @@ public class Radii
 		double rad = 0;
 		ResultsTable myrt = new ResultsTable();
 		DecimalFormatSymbols nf = new DecimalFormatSymbols(Locale.US);
-		DecimalFormat df = new DecimalFormat("0.00", nf);
+		DecimalFormat df = new DecimalFormat("0.00000", nf);
 		ImagePlus meanimg = imp.duplicate();
 		IJ.run(meanimg, "Mean...", "radius="+intensity_rad);
 			
