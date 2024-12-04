@@ -1,7 +1,7 @@
 # ImageJFiles   [![DOI](https://zenodo.org/badge/169780722.svg)](https://zenodo.org/badge/latestdoi/169780722)
 plugins/macros for ImageJ/Fiji
 
-
+ * [File conversion](#file-conversion)
  * [Visualisation 3D](#tilt-3D)
  * [Align stack](#align-stack)
  * [Select specific Rois](#choose-roi)
@@ -13,6 +13,11 @@ plugins/macros for ImageJ/Fiji
  * [Cortex segmentation (from cortex marker)](#cortex-segmentation)
  * [Radioak plugin (radius)](#radioak-plugin)
  * [Local texture (GLCM)](#local-texture)
+
+## File conversion
+Macros to automatically convert a batch of files.
+
+convertCZIto8bTiff.ijm: convert all `.czi` files in a folder to `.tiff` format, and `8-bit` type if selected.
 
 ## Tilt 3D
 Visualisation of 3D stacks.
